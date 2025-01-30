@@ -11,7 +11,9 @@ const ProductSchema = new mongoose.Schema({
     },
     price: {
         type: Number,
-        required: true
+        required: true,
+        min: 0,
+        default: 0
     },
     category: {
         type: String,
@@ -25,6 +27,7 @@ const ProductSchema = new mongoose.Schema({
     stock: {
         type: Number,
         required: true,
+        min: 0,
         default: 0
     },
     vintage: {

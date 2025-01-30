@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Grid,
   Card,
@@ -28,20 +28,26 @@ function ProductList() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchProducts = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('http://localhost:5000/api/products');
+      setProducts(response.data);
+      setError(null);
+    } catch (err) {
+      setError('Error al cargar los productos');
+      console.error('Error fetching products:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []); // No hay dependencias porque no usa ningún estado o prop
 
   useEffect(() => {
     fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/api/products');
-      setProducts(response.data);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      showSnackbar('Error al cargar los productos', 'error');
-    }
-  };
+  }, [fetchProducts]); // Ahora incluimos fetchProducts como dependencia
 
   const handleOpenDialog = (product) => {
     setSelectedProduct(product);
@@ -99,76 +105,85 @@ function ProductList() {
       >
         Premium Collection
       </Typography>
-      <Grid container spacing={4}>
-        {products.map((product) => (
-          <Grid item key={product._id} xs={12} sm={6} md={4}>
-            <Card
-              sx={{
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                backgroundColor: 'background.paper',
-                borderRadius: 2,
-                '&:hover': {
-                  transform: 'scale(1.02)',
-                  transition: 'transform 0.2s ease-in-out',
-                },
-              }}
-            >
-              <CardMedia
-                component="img"
-                height="300"
-                image={product.imageUrl}
-                alt={product.name}
-                sx={{ objectFit: 'cover' }}
-              />
-              <CardContent sx={{ flexGrow: 1 }}>
-                <Typography
-                  gutterBottom
-                  variant="h5"
-                  component="h2"
-                  color="primary"
-                  sx={{ fontFamily: 'Playfair Display' }}
-                >
-                  {product.name}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  {product.description}
-                </Typography>
-                <Box sx={{ mt: 2 }}>
+      {loading ? (
+        <Typography variant="h6" color="text.secondary" sx={{ mt: 2 }}>
+          Cargando productos...
+        </Typography>
+      ) : error ? (
+        <Typography variant="h6" color="error" sx={{ mt: 2 }}>
+          {error}
+        </Typography>
+      ) : (
+        <Grid container spacing={4}>
+          {products.map((product) => (
+            <Grid item key={product._id} xs={12} sm={6} md={4}>
+              <Card
+                sx={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  backgroundColor: 'background.paper',
+                  borderRadius: 2,
+                  '&:hover': {
+                    transform: 'scale(1.02)',
+                    transition: 'transform 0.2s ease-in-out',
+                  },
+                }}
+              >
+                <CardMedia
+                  component="img"
+                  height="300"
+                  image={product.imageUrl}
+                  alt={product.name}
+                  sx={{ objectFit: 'cover' }}
+                />
+                <CardContent sx={{ flexGrow: 1 }}>
                   <Typography
-                    variant="h6"
+                    gutterBottom
+                    variant="h5"
+                    component="h2"
                     color="primary"
-                    sx={{ fontWeight: 'bold' }}
+                    sx={{ fontFamily: 'Playfair Display' }}
                   >
-                    ${product.price}
+                    {product.name}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Stock disponible: {product.stock}
+                  <Typography variant="body2" color="text.secondary" paragraph>
+                    {product.description}
                   </Typography>
-                </Box>
-              </CardContent>
-              <CardActions>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  startIcon={<ShoppingCartIcon />}
-                  onClick={() => handleOpenDialog(product)}
-                  disabled={product.stock === 0}
-                  sx={{
-                    fontFamily: 'Playfair Display',
-                    textTransform: 'none',
-                  }}
-                >
-                  {product.stock === 0 ? 'Sin Stock' : 'Agregar al Carrito'}
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
+                  <Box sx={{ mt: 2 }}>
+                    <Typography
+                      variant="h6"
+                      color="primary"
+                      sx={{ fontWeight: 'bold' }}
+                    >
+                      ${product.price}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Stock disponible: {product.stock}
+                    </Typography>
+                  </Box>
+                </CardContent>
+                <CardActions>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    startIcon={<ShoppingCartIcon />}
+                    onClick={() => handleOpenDialog(product)}
+                    disabled={product.stock === 0}
+                    sx={{
+                      fontFamily: 'Playfair Display',
+                      textTransform: 'none',
+                    }}
+                  >
+                    {product.stock === 0 ? 'Sin Stock' : 'Agregar al Carrito'}
+                  </Button>
+                </CardActions>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
       {/* Dialog para agregar al carrito */}
       <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle sx={{ fontFamily: 'Playfair Display' }}>

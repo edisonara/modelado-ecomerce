@@ -6,6 +6,7 @@ import Navbar from './components/Navbar';
 import ProductList from './components/ProductList';
 import ProductManagement from './components/ProductManagement';
 import Cart from './components/Cart';
+import AlcoholConsumption from './components/AlcoholConsumption';
 
 const theme = createTheme({
   palette: {
@@ -42,6 +43,7 @@ function App() {
           <Route path="/" element={<ProductList />} />
           <Route path="/admin/products" element={<ProductManagement />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/alcohol-consumption" element={<AlcoholConsumption />} />
         </Routes>
       </Router>
     </ThemeProvider>

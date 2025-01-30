@@ -19,6 +19,7 @@ mongoose.connect('mongodb://localhost:27017/licoreria', {
 
 // Routes
 app.use('/api/products', require('./routes/products'));
+app.use('/api/alcohol-consumption', require('./routes/alcoholConsumption'));
 app.use('/api/cart', require('./routes/cart'));
 
 const PORT = process.env.PORT || 5000;

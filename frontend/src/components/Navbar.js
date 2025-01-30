@@ -12,6 +12,7 @@ import {
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import LocalBarIcon from '@mui/icons-material/LocalBar';
 import InventoryIcon from '@mui/icons-material/Inventory';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 
 function Navbar() {
   return (
@@ -44,6 +45,18 @@ function Navbar() {
             }}
           >
             Gestionar Productos
+          </Button>
+          <Button
+            component={Link}
+            to="/alcohol-consumption"
+            startIcon={<AssessmentIcon />}
+            sx={{
+              color: 'primary.main',
+              textTransform: 'none',
+              fontFamily: 'Playfair Display',
+            }}
+          >
+            Consumo de Alcohol
           </Button>
           <IconButton
             component={Link}
